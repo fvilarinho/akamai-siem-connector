@@ -1,0 +1,15 @@
+{
+  "name": "consumer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Felipe Vilarinho <me@vila.net.br>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "akamai-edgegrid": "^3.4.4",
+    "axios": "^1.6.7"
+  }
+}

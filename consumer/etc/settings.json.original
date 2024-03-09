@@ -1,0 +1,8 @@
+{
+  "scheduler": "scheduler",
+  "inputQueue": "jobsToBeProcessed",
+  "outputQueue": "eventsToBeStored",
+  "edgercFilename": "/home/consumer/etc/.edgerc",
+  "edgercSectionName": "akamai",
+  "configsIds": "<colon-separated-configs-ids>"
+}

@@ -1,0 +1,134 @@
+# OAuth2 proxy service definition.
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth2-proxy
+  namespace: ${IDENTIFIER}
+  labels:
+    app: oauth2-proxy
+spec:
+  ports:
+    - name: frontend
+      port: 4180
+      targetPort: 4180
+  selector:
+    app: oauth2-proxy
+---
+# Scheduler service definition.
+apiVersion: v1
+kind: Service
+metadata:
+  name: scheduler
+  namespace: ${IDENTIFIER}
+  labels:
+    app: scheduler
+spec:
+  ports:
+    - name: backend
+      port: 1883
+      targetPort: 1883
+  selector:
+    app: scheduler
+---
+# Zookeeper service definition.
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+  namespace: ${IDENTIFIER}
+  labels:
+    app: zookeeper
+spec:
+  ports:
+    - name: backend
+      port: 2181
+      targetPort: 2181
+  selector:
+    app: zookeeper
+---
+# Apache Kafka service definition.
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-broker
+  namespace: ${IDENTIFIER}
+  labels:
+    app: kafka-broker
+spec:
+  ports:
+    - name: backend
+      port: 9092
+      targetPort: 9092
+  selector:
+    app: kafka-broker
+---
+# Apache Kafka UI service definition.
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-broker-ui
+  namespace: ${IDENTIFIER}
+  labels:
+    app: kafka-broker-ui
+spec:
+  ports:
+    - name: frontend
+      port: 8080
+      targetPort: 8080
+  selector:
+    app: kafka-broker-ui
+---
+# Opensearch service definition.
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch
+  namespace: ${IDENTIFIER}
+  labels:
+    app: opensearch
+spec:
+  ports:
+    - name: backend
+      port: 9200
+      targetPort: 9200
+    - name: discovery
+      port: 9300
+      targetPort: 9300
+  selector:
+    app: opensearch
+---
+# Opensearch UI service definition.
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-dashboards
+  namespace: ${IDENTIFIER}
+  labels:
+    app: opensearch-dashboards
+spec:
+  ports:
+    - name: frontend
+      port: 5601
+      targetPort: 5601
+  selector:
+    app: opensearch-dashboards
+---
+# Ingress controller service definition.
+apiVersion: v1
+kind: Service
+metadata:
+  name: ingress
+  namespace: ${IDENTIFIER}
+  labels:
+    app: ingress
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+    - name: https
+      port: 443
+      targetPort: 443
+  selector:
+    app: ingress

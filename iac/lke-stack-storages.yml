@@ -1,0 +1,25 @@
+# Storage definition for the scheduler.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: scheduler-data-claim
+  namespace: ${IDENTIFIER}
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: linode-block-storage
+---
+# Storage definition for Zookeeper.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: zookeeper-data-claim
+  namespace: ${IDENTIFIER}
+spec:
+  accessModes: [ "ReadWriteOnce" ]
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: linode-block-storage

@@ -1,0 +1,5 @@
+{
+  "outputQueue": "jobsToBeProcessed",
+  "jobsPerMinute": 1,
+  "maxEventsPerJob": 60
+}

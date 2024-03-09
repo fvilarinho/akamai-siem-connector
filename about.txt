@@ -1,0 +1,12 @@
+
+Customers want to access, analyze and process their security events to build reports, dashboards or even to get insights in real-time to take actions in a fast manner.
+
+What if we could provide an easier and robust way to collect this data?
+
+That's what you'll get here!
+
+This application provides a reliable and scalable way to collect Akamai Security Events (WAF, DDoS, BOT, etc.) and easily store it into SIEMs platforms.
+
+Follow us on https://github.com/fvilarinho/akamai-siem-connector and Feel free to contact us if you have any doubts or suggestions to improve this application. We'll be glad to help you!
+
+So lets get started!

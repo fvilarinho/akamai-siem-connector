@@ -1,0 +1,16 @@
+{
+  "name": "base-processor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Felipe Vilarinho <me@vila.net.br>",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "mqtt": "^5.3.5",
+    "os": "^0.1.2"
+  }
+}

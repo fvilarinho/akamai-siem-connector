@@ -1,0 +1,5 @@
+{
+    "scheduler": "scheduler",
+    "inputQueue": "jobsToBeProcessed",
+    "outputQueue": "eventsToBeStored"
+}

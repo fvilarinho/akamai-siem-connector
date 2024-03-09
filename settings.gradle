@@ -1,0 +1,3 @@
+rootProject.name = 'akamai-siem-connector'
+
+include("converter")

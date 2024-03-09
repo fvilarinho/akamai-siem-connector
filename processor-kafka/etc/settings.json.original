@@ -1,0 +1,11 @@
+{
+  "scheduler": "scheduler",
+  "inputQueue": "eventsToBeStored",
+  "kafka": {
+    "brokers": [
+      "kafka-broker:9092"
+    ],
+    "topic": "eventsCollected",
+    "maxMessageSize": 16777216
+  }
+}

@@ -1,0 +1,66 @@
+version: "3.8"
+
+services:
+  # Scheduler is responsible to define the jobs for the consumer.
+  scheduler:
+    platform: linux/amd64
+    build: ../scheduler
+    image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/${IDENTIFIER}/scheduler:${BUILD_VERSION}
+
+  # Base consumer image.
+  base-consumer:
+    platform: linux/amd64
+    build: ../base-consumer
+    image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/base-consumer:${BUILD_VERSION}
+
+  # Consumer is responsible to collect the security events from the Akamai SIEM endpoint.
+  consumer:
+    platform: linux/amd64
+    build:
+      context: ../consumer
+      args:
+        - DOCKER_REGISTRY_URL=${DOCKER_REGISTRY_URL}
+        - DOCKER_REGISTRY_ID=${DOCKER_REGISTRY_ID}
+        - IDENTIFIER=${IDENTIFIER}
+        - BUILD_VERSION=${BUILD_VERSION}
+    image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/${IDENTIFIER}/consumer:${BUILD_VERSION}
+    depends_on:
+      - base-consumer
+
+  # Base processor image.
+  base-processor:
+    platform: linux/amd64
+    build: ../base-processor
+    image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/base-processor:${BUILD_VERSION}
+
+  # Processor is responsible to store the collected security events in the Apache Kafka.
+  processor-kafka:
+    platform: linux/amd64
+    build:
+      context: ../processor-kafka
+      args:
+        - DOCKER_REGISTRY_URL=${DOCKER_REGISTRY_URL}
+        - DOCKER_REGISTRY_ID=${DOCKER_REGISTRY_ID}
+        - IDENTIFIER=${IDENTIFIER}
+        - BUILD_VERSION=${BUILD_VERSION}
+    image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/processor-kafka:${BUILD_VERSION}
+    depends_on:
+      - base-processor
+
+  # Converter is responsible to decode/enrich the collected security events stored in Apache Kafka.
+  converter:
+    platform: linux/amd64
+    build: ../converter
+    image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/${IDENTIFIER}/converter:${BUILD_VERSION}
+
+  # Exporter is responsible to push the decoded security events into Opensearch.
+  exporter:
+    platform: linux/amd64
+    build: ../exporter
+    image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/${IDENTIFIER}/exporter:${BUILD_VERSION}
+
+  # Ingress controller.
+  ingress:
+    platform: linux/amd64
+    build: ../ingress
+    image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/${IDENTIFIER}/ingress:${BUILD_VERSION}

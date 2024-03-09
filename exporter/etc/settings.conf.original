@@ -1,0 +1,24 @@
+input {
+	kafka {
+	    client_id => "exporter"
+		bootstrap_servers => "kafka-broker:9092"
+		topics => "eventsProcessed"
+	}
+}
+
+filter {
+    json {
+        source => "message"
+    }
+
+    mutate {
+        remove_field => [ "[event]", "[message]" ]
+    }
+}
+
+output {
+    opensearch {
+        hosts => ["http://opensearch:9200"]
+        index => "akamai-siem-%{+YYYY.MM.dd}"
+    }
+}

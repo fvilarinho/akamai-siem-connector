@@ -1,0 +1,71 @@
+{
+  "cef": {
+    "message": "CEF:0|Akamai|#{type}|#{version}|@{eventClassId(#{attackData})}|@{name(#{attackData})}|@{severity(#{attackData})}|act=@{appliedAction(#{attackData})} app=#{httpMessage.protocol} c6a2=@{ipv6Src(#{attackData.clientIP})} c6a2Label=\"Source IPv6 Address\" cs1=#{attackData.rules} cs1Label=\"Rules\" cs2=#{attackData.ruleMessages} cs2Label=\"Rule Messages\" cs3=#{attackData.ruleData} cs3Label=\"Rule Data\" cs4=#{attackData.ruleSelectors} cs4Label=\"Rule Selectors\" cs5=#{attackData.clientReputation} cs5Label=\"Client Reputation\" cs6=#{attackData.apiId} cs6Label=\"API ID\" devicePayloadId=#{httpMessage.requestId} dhost=#{httpMessage.host} dpt=#{httpMessage.port} flexString1=#{attackData.configId} flexString1Label=\"Security Config Id\" flexString2=#{attackData.policyId} flexString2Label=\"Firewall Policy Id\" out=#{httpMessage.bytes} request=@{requestURL(#{httpMessage})} requestMethod=#{httpMessage.method} src=#{attackData.clientIP} start=#{httpMessage.start} AkamaiSiemSlowPostAction=#{attackData.slowPostAction} AkamaiSiemSlowPostRate=#{attackData.slowPostRate} AkamaiSiemRuleVersions=#{attackData.ruleVersions} AkamaiSiemRuleTags=#{attackData.ruleTags} AkamaiSiemApiKey=#{attackData.apiKey} AkamaiSiemTLSVersion=#{httpMessage.tls} AkamaiSiemRequestHeaders=#{httpMessage.requestHeaders} AkamaiSiemResponseHeaders=#{httpMessage.responseHeaders} AkamaiSiemResponseStatus=#{httpMessage.status} AkamaiSiemContinent=#{geo.continent} AkamaiSiemCountry=#{geo.country} AkamaiSiemCity=#{geo.city} AkamaiSiemRegion=#{geo.regionCode} AkamaiSiemASN=#{geo.asn} AkamaiSiemCustomData=#{custom}",
+    "base64Fields": [
+      "attackData.ruleVersions",
+      "attackData.rules",
+      "attackData.ruleActions",
+      "attackData.ruleMessages",
+      "attackData.ruleData",
+      "attackData.ruleSelectors",
+      "attackData.ruleTags",
+      "custom"
+    ],
+    "urlEncodedFields": [
+      "attackData.ruleVersions",
+      "attackData.rules",
+      "attackData.ruleActions",
+      "attackData.ruleMessages",
+      "attackData.ruleData",
+      "attackData.ruleSelectors",
+      "attackData.ruleTags",
+      "httpMessage.requestHeaders",
+      "httpMessage.responseHeaders"
+    ]
+  },
+  "json": {
+    "fieldsToBeAdded": [
+      {
+        "name": "eventClassId",
+        "value": "@{eventClassId(#{attackData})}"
+      },
+      {
+        "name": "appliedAction",
+        "value": "@{appliedAction(#{attackData})}"
+      },
+      {
+        "name": "name",
+        "value": "@{name(#{attackData})}"
+      },
+      {
+        "name": "severity",
+        "value": "@{severity(#{attackData})}"
+      },
+      {
+        "name": "requestURL",
+        "value": "@{requestURL(#{httpMessage})}"
+      }
+    ],
+    "base64Fields": [
+      "attackData.ruleVersions",
+      "attackData.rules",
+      "attackData.ruleActions",
+      "attackData.ruleMessages",
+      "attackData.ruleData",
+      "attackData.ruleSelectors",
+      "attackData.ruleTags",
+      "custom"
+    ],
+    "urlEncodedFields": [
+      "attackData.ruleVersions",
+      "attackData.rules",
+      "attackData.ruleActions",
+      "attackData.ruleMessages",
+      "attackData.ruleData",
+      "attackData.ruleSelectors",
+      "attackData.ruleTags",
+      "httpMessage.requestHeaders",
+      "httpMessage.responseHeaders"
+    ]
+  }
+}

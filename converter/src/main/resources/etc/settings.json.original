@@ -1,0 +1,11 @@
+{
+  "storageFormatId": "json",
+  "workers": 10,
+  "kafka": {
+    "brokers": [
+      "kafka-broker:9092"
+    ],
+    "inboundTopic": "eventsCollected",
+    "outboundTopic": "eventsProcessed"
+  }
+}

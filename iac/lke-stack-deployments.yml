@@ -1,0 +1,593 @@
+# OAuth2 proxy is responsible to interact with an OAuth2 IDP.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-proxy
+  namespace: ${IDENTIFIER}
+  labels:
+    app: oauth2-proxy
+spec:
+  replicas: ${NODE_COUNT}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: oauth2-proxy
+  template:
+    metadata:
+      labels:
+        app: oauth2-proxy
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: oauth2-proxy
+          image: bitnami/oauth2-proxy:7.5.1
+          imagePullPolicy: Always
+          args:
+            - --config=/etc/settings.conf
+          volumeMounts:
+            - name: oauth2-proxy-settings
+              mountPath: /etc/settings.conf
+              subPath: settings.conf
+      volumes:
+        - name: oauth2-proxy-settings
+          configMap:
+            name: oauth2-proxy-settings
+---
+# Consumer is responsible to collect the security events from the Akamai SIEM endpoint.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer
+  namespace: ${IDENTIFIER}
+  labels:
+    app: consumer
+spec:
+  replicas: ${JOBS_PER_MINUTE}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: consumer
+  template:
+    metadata:
+      labels:
+        app: consumer
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+      restartPolicy: Always
+      containers:
+        - name: consumer
+          image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/${IDENTIFIER}/consumer:${BUILD_VERSION}
+          imagePullPolicy: Always
+          # env:
+          #   - name: "NODE_OPTIONS"
+          #     value: "--max-old-space-size=1024"
+          volumeMounts:
+            - name: consumer-credentials
+              mountPath: /home/consumer/etc/.edgerc
+              subPath: .edgerc
+            - name: consumer-settings
+              mountPath: /home/consumer/etc/settings.json
+              subPath: settings.json
+      imagePullSecrets:
+        - name:
+            images-registry
+      volumes:
+        - name: consumer-credentials
+          configMap:
+            name: consumer-credentials
+        - name: consumer-settings
+          configMap:
+            name: consumer-settings
+---
+# Processor is responsible to store the collected security events in the Apache Kafka.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: processor-kafka
+  namespace: ${IDENTIFIER}
+  labels:
+    app: processor-kafka
+spec:
+  replicas: ${JOBS_PER_MINUTE}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: processor-kafka
+  template:
+    metadata:
+      labels:
+        app: processor-kafka
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+      restartPolicy: Always
+      containers:
+        - name: processor-kafka
+          image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/processor-kafka:${BUILD_VERSION}
+          imagePullPolicy: Always
+          # env:
+          #   - name: "NODE_OPTIONS"
+          #     value: "--max-old-space-size=1024"
+          volumeMounts:
+            - name: processor-kafka-settings
+              mountPath: /home/processor/etc/settings.json
+              subPath: settings.json
+      imagePullSecrets:
+        - name:
+            images-registry
+      volumes:
+        - name: processor-kafka-settings
+          configMap:
+            name: processor-kafka-settings
+---
+# Converter is responsible to decode/enrich the collected security events stored in Apache Kafka.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: converter
+  namespace: ${IDENTIFIER}
+  labels:
+    app: converter
+spec:
+  replicas: ${JOBS_PER_MINUTE}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: converter
+  template:
+    metadata:
+      labels:
+        app: converter
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+      restartPolicy: Always
+      containers:
+        - name: converter
+          image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/${IDENTIFIER}/converter:${BUILD_VERSION}
+          imagePullPolicy: Always
+          # env:
+          #   - name: "JAVA_OPTS"
+          #     value: "-Xms1024m -Xmx1024m"
+          volumeMounts:
+            - name: converter-settings
+              mountPath: /home/converter/etc/settings.json
+              subPath: settings.json
+            - name: converter-templates
+              mountPath: /home/converter/etc/templates.json
+              subPath: templates.json
+      imagePullSecrets:
+        - name:
+            images-registry
+      volumes:
+        - name: converter-settings
+          configMap:
+            name: converter-settings
+        - name: converter-templates
+          configMap:
+            name: converter-templates
+---
+# Scheduler is responsible to define the jobs for the consumer.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scheduler
+  namespace: ${IDENTIFIER}
+  labels:
+    app: scheduler
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: scheduler
+  template:
+    metadata:
+      labels:
+        app: scheduler
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        fsGroup: 102
+      restartPolicy: Always
+      containers:
+        - name: scheduler
+          image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/${IDENTIFIER}/scheduler:${BUILD_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 1883
+          volumeMounts:
+            - name: scheduler-queues-settings
+              mountPath: /home/scheduler/etc/settings.conf
+              subPath: settings.conf
+            - name: scheduler-settings
+              mountPath: /home/scheduler/etc/settings.json
+              subPath: settings.json
+            - name: scheduler-data
+              mountPath: /home/scheduler/data
+      imagePullSecrets:
+        - name:
+            images-registry
+      volumes:
+        - name: scheduler-queues-settings
+          configMap:
+            name: scheduler-queues-settings
+        - name: scheduler-settings
+          configMap:
+            name: scheduler-settings
+        - name: scheduler-data
+          persistentVolumeClaim:
+            claimName: scheduler-data-claim
+---
+# Zookeeper is responsible to control the state of Apache Kafka.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zookeeper
+  namespace: ${IDENTIFIER}
+  labels:
+    app: zookeeper
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: zookeeper
+  template:
+    metadata:
+      labels:
+        app: zookeeper
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        fsGroup: 101
+      restartPolicy: Always
+      containers:
+        - name: zookeeper
+          image: bitnami/zookeeper:3.8.4
+          imagePullPolicy: Always
+          env:
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: "yes"
+          ports:
+            - containerPort: 2181
+          volumeMounts:
+            - name: zookeeper-data
+              mountPath: /bitnami/zookeeper/data
+      volumes:
+        - name: zookeeper-data
+          persistentVolumeClaim:
+            claimName: zookeeper-data-claim
+---
+# Apache Kafka is used to store the collected security events.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka-broker
+  namespace: ${IDENTIFIER}
+  labels:
+    app: kafka-broker
+spec:
+  replicas: ${NODE_COUNT}
+  serviceName: kafka-broker
+  selector:
+    matchLabels:
+      app: kafka-broker
+  template:
+    metadata:
+      labels:
+        app: kafka-broker
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        fsGroup: 101
+      restartPolicy: Always
+      containers:
+        - name: kafka-broker
+          image: bitnami/kafka:3.7.0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9092
+          volumeMounts:
+            - name: kafka-broker-init
+              mountPath: /docker-entrypoint-initdb.d/init.sh
+              subPath: init.sh
+            - name: kafka-broker-settings
+              mountPath: /bitnami/kafka/config/server.properties
+              subPath: settings.conf
+            - name: kafka-broker-data
+              mountPath: /bitnami/kafka/data
+      volumes:
+        - name: kafka-broker-init
+          configMap:
+            name: kafka-broker-init
+        - name: kafka-broker-settings
+          configMap:
+            name: kafka-broker-settings
+  volumeClaimTemplates:
+    - metadata:
+        name: kafka-broker-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 20Gi
+        storageClassName: linode-block-storage
+---
+# UI for Apache Kafka.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-broker-ui
+  namespace: ${IDENTIFIER}
+  labels:
+    app: kafka-broker-ui
+spec:
+  replicas: ${NODE_COUNT}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: kafka-broker-ui
+  template:
+    metadata:
+      labels:
+        app: kafka-broker-ui
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+      restartPolicy: Always
+      containers:
+        - name: kafka-broker-ui
+          image: provectuslabs/kafka-ui:master
+          imagePullPolicy: Always
+          env:
+            - name: "KAFKA_CLUSTERS_0_NAME"
+              value: "kafka-broker"
+            - name: "KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS"
+              value: "kafka-broker:9092"
+            - name: "KAFKA_CLUSTERS_0_ZOOKEEPER"
+              value: "zookeeper:2181"
+            - name: "SERVER_SERVLET_CONTEXT_PATH"
+              value: "/events"
+          ports:
+            - containerPort: 8080
+---
+# Exporter is responsible to push the decoded security events into Opensearch.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: exporter
+  namespace: ${IDENTIFIER}
+  labels:
+    app: exporter
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: exporter
+  template:
+    metadata:
+      labels:
+        app: exporter
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      restartPolicy: Always
+      containers:
+        - name: exporter
+          image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/${IDENTIFIER}/exporter:${BUILD_VERSION}
+          # env:
+          #   - name: "JAVA_OPTS"
+          #     value: "-Xms1024m -Xmx1024m"
+          volumeMounts:
+            - name: exporter-plugins-settings
+              mountPath: /usr/share/logstash/config/plugins.conf
+              subPath: plugins.conf
+            - name: exporter-settings
+              mountPath: /usr/share/logstash/pipeline/logstash.conf
+              subPath: settings.conf
+      imagePullSecrets:
+        - name:
+            images-registry
+      volumes:
+        - name: exporter-plugins-settings
+          configMap:
+            name: exporter-plugins-settings
+        - name: exporter-settings
+          configMap:
+            name: exporter-settings
+---
+# Opensearch is used to store the decoded security events.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch
+  namespace: ${IDENTIFIER}
+  labels:
+    app: opensearch
+spec:
+  replicas: ${NODE_COUNT}
+  serviceName: opensearch
+  selector:
+    matchLabels:
+      app: opensearch
+  template:
+    metadata:
+      labels:
+        app: opensearch
+    spec:
+      initContainers:
+        - name: pre-boot
+          image: bash:4.1.17
+          command:
+            - sh
+            - -c
+            - sysctl -w vm.max_map_count=262144
+          securityContext:
+            privileged: true
+      securityContext:
+        fsGroup: 1000
+      restartPolicy: Always
+      containers:
+        - name: opensearch
+          image: opensearchproject/opensearch:2.11.1
+          ports:
+            - containerPort: 9200
+              name: backend
+            - containerPort: 9300
+              name: discovery
+          env:
+            # - name: "JAVA_OPTS"
+            #   value: "-Xms1024m -Xmx1024m"
+            - name: discovery.type
+              value: "zen"
+            - name: cluster.name
+              value: "opensearch-cluster"
+            - name: node.name
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: discovery.seed_hosts
+              value: "opensearch"
+            - name: cluster.initial_master_nodes
+              value: "opensearch-0,opensearch-1,opensearch-2"
+            - name: node.data
+              value: "true"
+            - name: node.master
+              value: "true"
+            - name: node.ingest
+              value: "true"
+            - name: "DISABLE_INSTALL_DEMO_CONFIG"
+              value: "true"
+            - name: "DISABLE_SECURITY_PLUGIN"
+              value: "true"
+          volumeMounts:
+            - name: opensearch-data
+              mountPath: /usr/share/opensearch/data
+  volumeClaimTemplates:
+    - metadata:
+        name: opensearch-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 50Gi
+        storageClassName: linode-block-storage
+---
+# UI for the Opensearch.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch-dashboards
+  namespace: ${IDENTIFIER}
+  labels:
+    app: opensearch-dashboards
+spec:
+  replicas: ${NODE_COUNT}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: opensearch-dashboards
+  template:
+    metadata:
+      labels:
+        app: opensearch-dashboards
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      restartPolicy: Always
+      containers:
+        - name: dashboards
+          image: opensearchproject/opensearch-dashboards:2.11.1
+          imagePullPolicy: Always
+          env:
+            # - name: "JAVA_OPTS"
+            #   value: "-Xms1024m -Xmx1024m"
+            - name: "OPENSEARCH_HOSTS"
+              value: "http://opensearch:9200"
+            - name: "DISABLE_SECURITY_DASHBOARDS_PLUGIN"
+              value: "true"
+            - name: "SERVER_BASEPATH"
+              value: "/dashboards"
+            - name: "SERVER_REWRITEBASEPATH"
+              value: "true"
+          ports:
+            - containerPort: 5601
+---
+# Ingress controller.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingress
+  namespace: ${IDENTIFIER}
+  labels:
+    app: ingress
+spec:
+  replicas: ${NODE_COUNT}
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: ingress
+  template:
+    metadata:
+      labels:
+        app: ingress
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: ingress
+          image: ${DOCKER_REGISTRY_URL}/${DOCKER_REGISTRY_ID}/${IDENTIFIER}/ingress:${BUILD_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+            - containerPort: 443
+          volumeMounts:
+            - name: ingress-settings
+              mountPath: /home/ingress/etc/nginx/http.d/settings.conf
+              subPath: settings.conf
+            - name: ingress-settings-object
+              mountPath: /home/ingress/htdocs/settings.js
+              subPath: settings.js
+            - name: ingress-tls-certificate
+              mountPath: /home/ingress/etc/ssl/certs/cert.crt
+              subPath: cert.crt
+            - name: ingress-tls-private-key
+              mountPath: /home/ingress/etc/ssl/private/cert.key
+              subPath: cert.key
+      imagePullSecrets:
+        - name:
+            images-registry
+      volumes:
+        - name: ingress-settings
+          configMap:
+            name: ingress-settings
+        - name: ingress-settings-object
+          configMap:
+            name: ingress-settings-object
+        - name: ingress-tls-certificate
+          configMap:
+            name: ingress-tls-certificate
+        - name: ingress-tls-private-key
+          configMap:
+            name: ingress-tls-private-key

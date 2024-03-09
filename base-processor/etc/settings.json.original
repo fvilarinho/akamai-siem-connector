@@ -1,0 +1,4 @@
+{
+    "scheduler": "scheduler",
+    "inputQueue": "eventsToBeStored"
+}
