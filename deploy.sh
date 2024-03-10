@@ -15,19 +15,19 @@ function checkDependencies() {
   fi
 
   if [ -z "$TERRAFORM_CMD" ]; then
-    echo "Terraform is not installed! Please install it first to continue!"
+    echo "terraform is not installed! Please install it first to continue!"
 
     exit 1
   fi
 
   if [ -z "$KUBECTL_CMD" ]; then
-    echo "Kubectl is not installed! Please install it first to continue!"
+    echo "kubectl is not installed! Please install it first to continue!"
 
     exit 1
   fi
 
   if [ -z "$CURL_CMD" ]; then
-    echo "Curl is not installed! Please install it first to continue!"
+    echo "curl is not installed! Please install it first to continue!"
 
     exit 1
   fi

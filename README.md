@@ -53,10 +53,9 @@ The following environment variable must be set in your operating system.
 
 ### To setup
 - [`dialog 1.3.x or later`](https://invisible-island.net/dialog)
-- [`jq 1.7.x or later`](https://stedolan.github.io/jq)
-- [`yq 4.18.x or later`](https://mikefarah.gitbook.io/yq)
 - [`curl 8.5.x or later`](https://curl.se)
-- [`Terraform 1.5.x or later`](https://www.terraform.io)
+- [`jq 1.7.x or later`](https://stedolan.github.io/jq)
+- [`terraform 1.5.x or later`](https://www.terraform.io)
 - [`kubectl 1.29.x or later`](https://kubernetes.io/docs/tasks/tools)
 - `Any linux distribution with Kernel 5.x or later` or
 - `MacOS - Catalina or later` or

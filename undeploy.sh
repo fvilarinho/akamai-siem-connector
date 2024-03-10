@@ -32,7 +32,7 @@ function checkDependencies() {
   fi
 
   if [ -z "$KUBECTL_CMD" ]; then
-    echo "Kubectl is not installed! Please install it first to continue!"
+    echo "kubectl is not installed! Please install it first to continue!"
 
     exit 1
   fi

@@ -59,7 +59,6 @@ function prepareToExecute() {
   # Mandatory binaries.
   export CURL_CMD=$(which curl)
   export JQ_CMD=$(which jq)
-  export YQ_CMD=$(which yq)
   export NPM_CMD=$(which npm)
   export JAVA_CMD=$(which java)
   export DOCKER_CMD=$(which docker)

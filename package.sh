@@ -12,7 +12,7 @@ function prepareToExecute() {
 # Checks the dependencies of this script.
 function checkDependencies() {
   if [ -z "$DOCKER_CMD" ]; then
-    echo "Docker is not installed! Please install it first to continue!"
+    echo "docker is not installed! Please install it first to continue!"
 
     exit 1
   fi

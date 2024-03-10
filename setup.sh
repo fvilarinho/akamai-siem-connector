@@ -1202,8 +1202,7 @@ function menuDialog() {
 function checkRequirementsDialog() {
   if [ -z "$UNATTENDED" ]; then
     TITLE="CHECKING REQUIREMENTS"
-
-    BINARIES="curl jq yq terraform kubectl"
+    BINARIES="curl jq terraform kubectl"
 
     eval "BINARIES=($BINARIES)"
 
