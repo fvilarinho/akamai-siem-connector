@@ -1,4 +1,4 @@
-## Akamai SIEM Connector
+# Akamai SIEM Connector
 
 ## 1. Introduction
 Customers want to access, analyze and process their security events to build reports, dashboards or even to get insights
