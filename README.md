@@ -9,7 +9,7 @@ What if we could provide an easier and robust way to collect this data?
 That's what you'll get here!
 
 This application provides a reliable and scalable way to collect Akamai Security Events (WAF, DDoS, BOT, etc.) and 
-easily store it into SIEMs platforms.
+easily store it into analytics platforms.
 
 ## 2. Maintainers
 - [Felipe Vilarinho](https://www.linkedin.com/in/fvilarinho)
