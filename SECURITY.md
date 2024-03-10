@@ -1,5 +1,7 @@
 # Security Policy
 
+## Overview
+
 1. All files of this repository are being recurrently scanned for security vulnerabilities using [Snyk](https://snyk.io)
 2. No secrets/credentials are allowed to be commited in the repository. If you try to push it, you will be blocked/banned.
 
