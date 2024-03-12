@@ -9,6 +9,9 @@
   "author": "Felipe Vilarinho <me@vila.net.br>",
   "license": "Apache-2.0",
   "dependencies": {
+    "fs": "^0.0.2",
+    "mqtt": "^5.3.5",
+    "os": "^0.1.2",
     "akamai-edgegrid": "^3.4.4",
     "axios": "^1.6.7"
   }
