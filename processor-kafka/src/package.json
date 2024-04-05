@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "fs": "^0.0.2",
-    "mqtt": "^5.3.6",
+    "mqtt": "^5.4.0",
     "os": "^0.1.2",
     "kafkajs": "^2.2.4"
   }
