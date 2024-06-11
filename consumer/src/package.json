@@ -10,7 +10,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "fs": "^0.0.2",
-    "mqtt": "^5.5.1",
+    "mqtt": "^5.5.4",
     "os": "^0.1.2",
     "akamai-edgegrid": "^3.4.5",
     "axios": "^1.7.1"
