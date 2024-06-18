@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   # Scheduler is responsible to define the jobs for the consumer.
   scheduler:
