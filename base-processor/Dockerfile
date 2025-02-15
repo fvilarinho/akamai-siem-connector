@@ -1,4 +1,4 @@
-FROM alpine:3.21.0
+FROM alpine:3.21.3
 
 # File Author / Maintainer.
 LABEL maintainer="Felipe Vilarinho <fvilarin@akamai.com>"
